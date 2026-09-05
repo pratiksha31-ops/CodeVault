@@ -1,12 +1,12 @@
 const express = require("express");
 
-const protect = require("../middleware/authMiddleware");
-
 const {
   createRepository,
   getRepositories,
   getRepository,
 } = require("../controllers/repositoryController");
+
+const protect = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
