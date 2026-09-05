@@ -1,5 +1,6 @@
 const File = require("../models/File");
 const Repository = require("../models/Repository");
+const Commit = require("../models/Commit");
 
 // CREATE FILE
 const createFile = async (req, res) => {
@@ -158,10 +159,70 @@ const deleteFile = async (req, res) => {
   }
 };
 
+// RESTORE FILE VERSION
+const restoreFileVersion = async (req, res) => {
+  try {
+    const { commitId } = req.body;
+
+    if (!commitId) {
+      return res.status(400).json({
+        message: "Commit ID is required",
+      });
+    }
+
+    const file = await File.findById(req.params.id);
+
+    if (!file) {
+      return res.status(404).json({
+        message: "File not found",
+      });
+    }
+
+    const commit = await Commit.findById(commitId);
+
+    if (!commit) {
+      return res.status(404).json({
+        message: "Commit not found",
+      });
+    }
+
+    if (commit.file.toString() !== file._id.toString()) {
+      return res.status(400).json({
+        message: "Commit does not belong to this file",
+      });
+    }
+
+    file.content = commit.content;
+
+    await file.save();
+
+    res.status(200).json({
+      message: "File version restored successfully",
+      file,
+    });
+  } catch (error) {
+    console.error("Restore version error:", error);
+
+    res.status(500).json({
+      message: "Failed to restore file version",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createFile,
   getFilesByRepository,
   getFile,
   updateFile,
   deleteFile,
+};
+
+module.exports = {
+  createFile,
+  getFilesByRepository,
+  getFile,
+  updateFile,
+  deleteFile,
+  restoreFileVersion,
 };

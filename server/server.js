@@ -1,10 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const commitRoutes = require("./routes/commitRoutes");
 
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
+const branchRoutes = require("./routes/branchRoutes");
 
 dotenv.config();
 
@@ -39,3 +41,7 @@ app.use("/api/repositories", repositoryRoutes);
 
 const fileRoutes = require("./routes/fileRoutes");
 app.use("/api/files", fileRoutes);
+
+app.use("/api/commits", commitRoutes);
+
+app.use("/api/branches", branchRoutes);

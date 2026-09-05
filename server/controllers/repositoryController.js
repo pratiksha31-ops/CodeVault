@@ -1,4 +1,7 @@
 const Repository = require("../models/Repository");
+const File = require("../models/File");
+const Commit = require("../models/Commit");
+const Branch = require("../models/Branch");
 
 // CREATE REPOSITORY
 const createRepository = async (req, res) => {
@@ -79,8 +82,55 @@ const getRepository = async (req, res) => {
   }
 };
 
+// GET REPOSITORY STATISTICS
+const getRepositoryStats = async (req, res) => {
+  try {
+    const repositoryId = req.params.repositoryId;
+
+    const repository = await Repository.findById(repositoryId);
+
+    if (!repository) {
+      return res.status(404).json({
+        message: "Repository not found",
+      });
+    }
+
+    const filesCount = await File.countDocuments({
+      repository: repositoryId,
+    });
+
+    const commitsCount = await Commit.countDocuments({
+      repository: repositoryId,
+    });
+
+    const branchesCount = await Branch.countDocuments({
+      repository: repositoryId,
+    });
+
+    res.status(200).json({
+      repository: {
+        id: repository._id,
+        name: repository.name,
+      },
+      statistics: {
+        files: filesCount,
+        commits: commitsCount,
+        branches: branchesCount,
+      },
+    });
+  } catch (error) {
+    console.error("Repository stats error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch repository statistics",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createRepository,
   getRepositories,
   getRepository,
+  getRepositoryStats
 };
