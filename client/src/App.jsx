@@ -8,11 +8,17 @@ import CreateRepository from "./pages/CreateRepository";
 import Repository from "./pages/Repository";
 import FileEditor from "./pages/FileEditor";
 import CommitHistory from "./pages/CommitHistory";
+import CommitDetails from "./pages/CommitDetails";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+          path="/repository/:id/commit/:commitId"
+          element={<CommitDetails />}
+        />
+
         <Route
           path="/repository/:id/history"
           element={<CommitHistory />}

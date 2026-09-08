@@ -85,14 +85,15 @@ function CommitHistory() {
         <div className="space-y-4">
 
           {commits.map((commit) => (
-            <div
+            <Link
               key={commit._id}
-              className="bg-gray-900 border border-gray-800 rounded-xl p-5"
+              to={`/repository/${id}/commit/${commit._id}`}
+              className="block bg-gray-900 border border-gray-800 rounded-xl p-5 hover:bg-gray-800"
             >
-
               <div className="flex items-center justify-between">
 
                 <div>
+
                   <h2 className="text-lg font-semibold text-white">
                     {commit.message}
                   </h2>
@@ -112,17 +113,19 @@ function CommitHistory() {
                   </p>
 
                   <p className="text-gray-500 text-sm mt-1">
-                    {new Date(commit.createdAt).toLocaleString()}
+                    {commit.createdAt
+                      ? new Date(commit.createdAt).toLocaleString()
+                      : "Unknown date"}
                   </p>
+
                 </div>
 
-                <div className="text-xs text-gray-600">
-                  {commit._id}
-                </div>
+                <span className="text-blue-400 text-sm">
+                  View →
+                </span>
 
               </div>
-
-            </div>
+            </Link>
           ))}
 
         </div>

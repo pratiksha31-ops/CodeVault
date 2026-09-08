@@ -86,12 +86,6 @@ const getFile = async (req, res) => {
   }
 };
 
-module.exports = {
-  createFile,
-  getFilesByRepository,
-  getFile,
-};
-
 // UPDATE FILE
 const updateFile = async (req, res) => {
   try {
@@ -210,14 +204,7 @@ const restoreFileVersion = async (req, res) => {
   }
 };
 
-module.exports = {
-  createFile,
-  getFilesByRepository,
-  getFile,
-  updateFile,
-  deleteFile,
-};
-
+// EXPORT ALL CONTROLLERS
 module.exports = {
   createFile,
   getFilesByRepository,
