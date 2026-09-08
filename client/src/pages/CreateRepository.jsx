@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 
 function CreateRepository() {
@@ -11,6 +11,9 @@ function CreateRepository() {
     visibility: "public",
   });
 
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -21,94 +24,109 @@ function CreateRepository() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await api.post(
-        "/repositories",
-        form
-      );
+    setError("");
+    setLoading(true);
 
-      navigate(
-        `/repository/${response.data.repository._id}`
-      );
+    try {
+      const response = await api.post("/repositories", form);
+
+      console.log("Repository created:", response);
+
+      navigate("/repositories");
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-        "Failed to create repository"
-      );
+      console.error("Create repository error:", error);
+
+      setError(error.message || "Failed to create repository");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex justify-center px-4 py-16">
-      <div className="w-full max-w-2xl">
-        <h1 className="text-3xl font-bold">
-          Create a New Repository
-        </h1>
-
-        <p className="text-gray-400 mt-2 mb-8">
-          Create a new place to store and manage your code.
-        </p>
-
-        <form
-          onSubmit={handleSubmit}
-          className="bg-gray-900 border border-gray-800 p-8 rounded-2xl space-y-6"
+    <div className="min-h-screen bg-gray-950 text-white">
+      <nav className="border-b border-gray-800 p-5">
+        <Link
+          to="/dashboard"
+          className="text-blue-400 hover:text-blue-300"
         >
-          <div>
-            <label className="block mb-2">
-              Repository Name
-            </label>
+          ← Dashboard
+        </Link>
+      </nav>
 
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="my-awesome-project"
-              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg"
-              required
-            />
-          </div>
+      <main className="max-w-2xl mx-auto p-8">
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+          <h1 className="text-3xl font-bold mb-2">
+            Create a New Repository
+          </h1>
 
-          <div>
-            <label className="block mb-2">
-              Description
-            </label>
+          <p className="text-gray-400 mb-8">
+            Create a repository to store and manage your code.
+          </p>
 
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Describe your project"
-              rows="4"
-              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg"
-            />
-          </div>
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/30 text-red-400 p-4 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
 
-          <div>
-            <label className="block mb-2">
-              Visibility
-            </label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Repository Name
+              </label>
 
-            <select
-              name="visibility"
-              value={form.visibility}
-              onChange={handleChange}
-              className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg"
+              <input
+                type="text"
+                name="name"
+                placeholder="my-project"
+                value={form.name}
+                onChange={handleChange}
+                required
+                className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Description
+              </label>
+
+              <textarea
+                name="description"
+                placeholder="Describe your project..."
+                value={form.description}
+                onChange={handleChange}
+                rows="4"
+                className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Visibility
+              </label>
+
+              <select
+                name="visibility"
+                value={form.visibility}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-blue-500"
+              >
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 p-3 rounded-lg font-semibold"
             >
-              <option value="public">
-                Public
-              </option>
-
-              <option value="private">
-                Private
-              </option>
-            </select>
-          </div>
-
-          <button className="bg-blue-600 px-6 py-3 rounded-lg font-semibold">
-            Create Repository
-          </button>
-        </form>
-      </div>
+              {loading ? "Creating..." : "Create Repository"}
+            </button>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

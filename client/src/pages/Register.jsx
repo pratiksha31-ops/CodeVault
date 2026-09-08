@@ -24,6 +24,8 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setError("");
+
     try {
       const response = await api.post(
         "/auth/register",
@@ -32,26 +34,24 @@ function Register() {
 
       localStorage.setItem(
         "token",
-        response.data.token
+        response.token
       );
 
       localStorage.setItem(
         "user",
-        JSON.stringify(response.data.user)
+        JSON.stringify(response.user)
       );
 
       navigate("/dashboard");
     } catch (error) {
-      setError(
-        error.response?.data?.message ||
-        "Registration failed"
-      );
+      setError(error.message || "Registration failed");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-gray-900 p-8 rounded-2xl">
+
         <h1 className="text-3xl font-bold mb-2">
           Create CodeVault Account
         </h1>
@@ -104,13 +104,17 @@ function Register() {
             className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700"
           />
 
-          <button className="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-lg font-semibold">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 p-3 rounded-lg font-semibold"
+          >
             Create Account
           </button>
         </form>
 
         <p className="text-gray-400 mt-6 text-center">
           Already have an account?{" "}
+
           <Link
             to="/"
             className="text-blue-400"
@@ -118,6 +122,7 @@ function Register() {
             Login
           </Link>
         </p>
+
       </div>
     </div>
   );
