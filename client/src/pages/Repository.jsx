@@ -143,7 +143,13 @@ function Repository() {
             </div>
 
             <div className="flex gap-3">
-
+              <Link
+                to={`/repository/${id}/branches`}
+                className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg"
+              >
+                Branches
+              </Link>
+              
               <button
                 onClick={() => setShowNewFile(!showNewFile)}
                 className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold"

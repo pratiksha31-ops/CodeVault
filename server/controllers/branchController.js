@@ -4,17 +4,17 @@ const Repository = require("../models/Repository");
 // CREATE BRANCH
 const createBranch = async (req, res) => {
   try {
-    const { name, repository, isDefault } = req.body;
+    const { name, repository } = req.body;
 
-    if (!name || !name.trim() || !repository) {
+    if (!name || !repository) {
       return res.status(400).json({
         message: "Branch name and repository are required",
       });
     }
 
-    const existingRepository = await Repository.findById(repository);
+    const repo = await Repository.findById(repository);
 
-    if (!existingRepository) {
+    if (!repo) {
       return res.status(404).json({
         message: "Repository not found",
       });
@@ -35,7 +35,7 @@ const createBranch = async (req, res) => {
       name,
       repository,
       createdBy: req.user._id,
-      isDefault: isDefault || false,
+      isDefault: false,
     });
 
     res.status(201).json({
@@ -52,7 +52,7 @@ const createBranch = async (req, res) => {
   }
 };
 
-// GET ALL BRANCHES OF A REPOSITORY
+// GET ALL BRANCHES OF REPOSITORY
 const getRepositoryBranches = async (req, res) => {
   try {
     const branches = await Branch.find({

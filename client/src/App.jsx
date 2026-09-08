@@ -9,6 +9,7 @@ import Repository from "./pages/Repository";
 import FileEditor from "./pages/FileEditor";
 import CommitHistory from "./pages/CommitHistory";
 import CommitDetails from "./pages/CommitDetails";
+import Branches from "./pages/Branches";
 
 function App() {
   return (
@@ -18,7 +19,10 @@ function App() {
           path="/repository/:id/commit/:commitId"
           element={<CommitDetails />}
         />
-
+        <Route
+          path="/repository/:id/branches"
+          element={<Branches />}
+        />
         <Route
           path="/repository/:id/history"
           element={<CommitHistory />}

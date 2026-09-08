@@ -11,20 +11,20 @@ const protect = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Create branch
+// CREATE BRANCH
 router.post("/", protect, createBranch);
 
-// Get all branches of repository
+// GET ALL BRANCHES OF REPOSITORY
 router.get(
   "/repository/:repositoryId",
   protect,
   getRepositoryBranches
 );
 
-// Get one branch
+// GET ONE BRANCH
 router.get("/:id", protect, getBranch);
 
-// Delete branch
+// DELETE BRANCH
 router.delete("/:id", protect, deleteBranch);
 
 module.exports = router;
