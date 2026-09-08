@@ -11,18 +11,28 @@ function CommitDetails() {
   const [error, setError] = useState("");
   const [restoring, setRestoring] = useState(false);
 
+  // LOAD COMMIT
   useEffect(() => {
     const loadCommit = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const response = await api.get(`/commits/${commitId}`);
+        const response = await api.get(
+          `/commits/${commitId}`
+        );
 
         setCommit(response.commit);
       } catch (error) {
-        console.error("Commit details error:", error);
-        setError(error.message || "Failed to load commit");
+        console.error(
+          "Commit details error:",
+          error
+        );
+
+        setError(
+          error.message ||
+            "Failed to load commit"
+        );
       } finally {
         setLoading(false);
       }
@@ -31,6 +41,7 @@ function CommitDetails() {
     loadCommit();
   }, [commitId]);
 
+  // RESTORE VERSION
   const handleRestore = async () => {
     if (!commit) return;
 
@@ -46,21 +57,36 @@ function CommitDetails() {
       setRestoring(true);
       setError("");
 
-      await api.post(`/files/${commit.file._id}/restore`, {
-        commitId: commit._id,
-      });
+      await api.post(
+        `/files/${commit.file._id}/restore`,
+        {
+          commitId: commit._id,
+        }
+      );
 
-      alert("File version restored successfully!");
+      alert(
+        "File version restored successfully!"
+      );
 
-      navigate(`/repository/${id}`);
+      navigate(
+        `/repository/${id}/file/${commit.file._id}`
+      );
     } catch (error) {
-      console.error("Restore error:", error);
-      setError(error.message || "Failed to restore version");
+      console.error(
+        "Restore error:",
+        error
+      );
+
+      setError(
+        error.message ||
+          "Failed to restore version"
+      );
     } finally {
       setRestoring(false);
     }
   };
 
+  // LOADING
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
@@ -71,6 +97,7 @@ function CommitDetails() {
     );
   }
 
+  // ERROR
   if (error && !commit) {
     return (
       <div className="min-h-screen bg-gray-950 text-white">
@@ -85,9 +112,11 @@ function CommitDetails() {
         </nav>
 
         <main className="max-w-6xl mx-auto p-8">
+
           <div className="bg-red-500/20 border border-red-500/30 text-red-400 p-5 rounded-xl">
             {error}
           </div>
+
         </main>
 
       </div>
@@ -127,7 +156,7 @@ function CommitDetails() {
 
       </nav>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN */}
       <main className="max-w-6xl mx-auto p-8">
 
         <h1 className="text-3xl font-bold mb-6">
@@ -145,43 +174,66 @@ function CommitDetails() {
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
 
           <h2 className="text-2xl font-semibold">
-            {commit.message || "No commit message"}
+            {commit.message ||
+              "No commit message"}
           </h2>
 
           <div className="text-gray-400 mt-5 space-y-3">
 
+            {/* FILE */}
             <p>
               File:{" "}
               <span className="text-blue-400">
-                {commit.file?.path || "Unknown file"}
+                {commit.file?.path ||
+                  commit.file?.name ||
+                  "Unknown file"}
               </span>
             </p>
 
+            {/* BRANCH */}
             <p>
-              Author:{" "}
-              {commit.author?.username ||
-                commit.author?.name ||
-                "Unknown"}
+              Branch:{" "}
+              <span className="text-green-400">
+                {commit.branch?.name ||
+                  "Unknown branch"}
+              </span>
             </p>
 
+            {/* AUTHOR */}
+            <p>
+              Author:{" "}
+              <span className="text-gray-300">
+                {commit.author?.username ||
+                  commit.author?.name ||
+                  "Unknown"}
+              </span>
+            </p>
+
+            {/* DATE */}
             <p>
               Date:{" "}
               {commit.createdAt
-                ? new Date(commit.createdAt).toLocaleString()
+                ? new Date(
+                    commit.createdAt
+                  ).toLocaleString()
                 : "Unknown date"}
             </p>
 
+            {/* COMMIT ID */}
             <p className="break-all">
-              Commit ID: {commit._id}
+              Commit ID:{" "}
+              <span className="text-gray-500">
+                {commit._id}
+              </span>
             </p>
 
           </div>
 
-          {/* RESTORE BUTTON */}
+          {/* RESTORE */}
           <button
             onClick={handleRestore}
             disabled={restoring}
-            className="mt-6 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed px-5 py-3 rounded-lg font-semibold"
+            className="mt-6 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-5 py-3 rounded-lg font-semibold"
           >
             {restoring
               ? "Restoring..."
@@ -193,14 +245,23 @@ function CommitDetails() {
         {/* CODE */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
 
-          <div className="px-6 py-4 border-b border-gray-800">
-            <h2 className="text-xl font-semibold">
-              Code at this Version
-            </h2>
+          <div className="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+
+            <div>
+              <h2 className="text-xl font-semibold">
+                Code at this Version
+              </h2>
+
+              <p className="text-gray-500 text-sm mt-1">
+                This is the exact code stored in this commit.
+              </p>
+            </div>
+
           </div>
 
           <pre className="bg-gray-950 p-6 overflow-x-auto text-sm text-gray-300 font-mono min-h-[400px] whitespace-pre-wrap">
-            {commit.content || "// No code stored in this commit"}
+            {commit.content ||
+              "// No code stored in this commit"}
           </pre>
 
         </div>

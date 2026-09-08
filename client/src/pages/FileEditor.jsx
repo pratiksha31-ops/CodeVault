@@ -16,9 +16,13 @@ function FileEditor() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  // LOAD FILE
   useEffect(() => {
     const loadFile = async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const response = await api.get(`/files/${fileId}`);
 
         setFile(response.file);
@@ -34,6 +38,7 @@ function FileEditor() {
     loadFile();
   }, [fileId]);
 
+  // SAVE FILE
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -56,9 +61,26 @@ function FileEditor() {
     }
   };
 
+  // COMMIT CHANGES
   const handleCommit = async () => {
     if (!commitMessage.trim()) {
       setError("Please enter a commit message.");
+      return;
+    }
+
+    if (!file) {
+      setError("File information is missing.");
+      return;
+    }
+
+    // Get branch ID safely
+    const branchId =
+      file.branch?._id || file.branch;
+
+    if (!branchId) {
+      setError(
+        "This file is not associated with a branch."
+      );
       return;
     }
 
@@ -67,32 +89,57 @@ function FileEditor() {
       setMessage("");
       setError("");
 
-      // First save the latest code
-      const fileResponse = await api.put(`/files/${fileId}`, {
-        content,
-      });
+      // STEP 1: Save latest code
+      const fileResponse = await api.put(
+        `/files/${fileId}`,
+        {
+          content,
+        }
+      );
 
-      setFile(fileResponse.file);
-      setContent(fileResponse.file.content || "");
+      // Get the UPDATED file directly from response
+      const updatedFile = fileResponse.file;
 
-      // Then create commit
+      setFile(updatedFile);
+      setContent(updatedFile.content || "");
+
+      // STEP 2: Get repository ID
+      const repositoryId =
+        updatedFile.repository || id;
+
+      // STEP 3: Get branch ID from updated file
+      const updatedBranchId =
+        updatedFile.branch?._id ||
+        updatedFile.branch ||
+        branchId;
+
+      // STEP 4: Create commit
       await api.post("/commits", {
-        repository: id,
-        file: fileId,
+        repository: repositoryId,
+        file: updatedFile._id,
+        branch: updatedBranchId,
         message: commitMessage.trim(),
       });
 
+      // Clear commit message
       setCommitMessage("");
 
-      setMessage("Changes committed successfully!");
+      setMessage(
+        "Changes committed successfully!"
+      );
     } catch (error) {
       console.error("Commit error:", error);
-      setError(error.message || "Failed to commit changes");
+
+      setError(
+        error.message ||
+          "Failed to commit changes"
+      );
     } finally {
       setCommitting(false);
     }
   };
 
+  // LOADING
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
@@ -101,10 +148,13 @@ function FileEditor() {
     );
   }
 
+  // ERROR
   if (error && !file) {
     return (
       <div className="min-h-screen bg-gray-950 text-white p-8">
-        <p className="text-red-400">{error}</p>
+        <p className="text-red-400">
+          {error}
+        </p>
       </div>
     );
   }
@@ -114,6 +164,7 @@ function FileEditor() {
 
       {/* NAVBAR */}
       <nav className="border-b border-gray-800 px-8 py-5 flex items-center justify-between">
+
         <Link
           to="/dashboard"
           className="text-2xl font-bold hover:text-blue-400"
@@ -127,6 +178,7 @@ function FileEditor() {
         >
           ← Back to Repository
         </Link>
+
       </nav>
 
       {/* MAIN */}
@@ -136,6 +188,7 @@ function FileEditor() {
         <div className="flex items-center justify-between mb-6">
 
           <div>
+
             <h1 className="text-2xl font-bold">
               {file?.name}
             </h1>
@@ -143,14 +196,30 @@ function FileEditor() {
             <p className="text-gray-500 mt-1">
               {file?.path}
             </p>
+
+            {/* BRANCH */}
+            {file?.branch && (
+              <p className="text-gray-500 text-sm mt-2">
+                Branch:{" "}
+                <span className="text-blue-400">
+                  {file.branch.name ||
+                    file.branch}
+                </span>
+              </p>
+            )}
+
           </div>
 
           <button
             onClick={handleSave}
-            disabled={saving || committing}
+            disabled={
+              saving || committing
+            }
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-5 py-2 rounded-lg font-semibold"
           >
-            {saving ? "Saving..." : "Save File"}
+            {saving
+              ? "Saving..."
+              : "Save File"}
           </button>
 
         </div>
@@ -178,7 +247,9 @@ function FileEditor() {
 
           <textarea
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) =>
+              setContent(e.target.value)
+            }
             spellCheck="false"
             className="w-full min-h-[500px] bg-gray-950 text-gray-200 p-6 font-mono text-sm leading-6 outline-none resize-y"
           />
@@ -201,17 +272,23 @@ function FileEditor() {
             <input
               type="text"
               value={commitMessage}
-              onChange={(e) => setCommitMessage(e.target.value)}
+              onChange={(e) =>
+                setCommitMessage(e.target.value)
+              }
               placeholder="e.g. Add hello message"
               className="flex-1 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-blue-500"
             />
 
             <button
               onClick={handleCommit}
-              disabled={committing || saving}
+              disabled={
+                committing || saving
+              }
               className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-semibold"
             >
-              {committing ? "Committing..." : "Commit Changes"}
+              {committing
+                ? "Committing..."
+                : "Commit Changes"}
             </button>
 
           </div>
@@ -219,6 +296,7 @@ function FileEditor() {
         </div>
 
       </main>
+
     </div>
   );
 }

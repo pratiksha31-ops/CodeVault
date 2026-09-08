@@ -8,6 +8,12 @@ const fileSchema = new mongoose.Schema(
       required: true,
     },
 
+    branch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Branch",
+      required: true,
+    },
+
     name: {
       type: String,
       required: true,
@@ -26,11 +32,6 @@ const fileSchema = new mongoose.Schema(
     language: {
       type: String,
       default: "text",
-    },
-
-    branch: {
-      type: String,
-      default: "main",
     },
   },
   {

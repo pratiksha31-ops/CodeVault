@@ -8,6 +8,12 @@ const commitSchema = new mongoose.Schema(
       required: true,
     },
 
+    branch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Branch",
+      required: true,
+    },
+
     file: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "File",
